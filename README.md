@@ -62,7 +62,7 @@ This means that if the JSON parser at the far end is capable of losslessly parsi
 
 This is much less likely to be useful to you, unless the JSON string which you are parsing was originally constructed by `preciseJson.stringify`.
 
-As with `floatJson.stringify`, the idea is to prevent information from being lost. `preciseJson.parse` works exactly like `JSON.parse` except that it throws an exception if it attempts to parse:
+As with `preciseJson.stringify`, the idea is to prevent information from being lost. `preciseJson.parse` works exactly like `JSON.parse` except that it throws an exception if it attempts to parse:
 
 * a number which cannot be precisely represented as a JavaScript number
 
