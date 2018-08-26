@@ -6,7 +6,7 @@ If we construct a JavaScript object like so:
 const obj = {a: 0.1}
 ```
 
-then the actual numeric value of the `obj.a`, as seen and understood by the JavaScript programming language, is *precisely*
+then the actual numeric value of the `obj.a`, as seen and understood by the JavaScript programming language, is precisely
 
 > 0.1000000000000000055511151231257827021181583404541015625
 
@@ -16,7 +16,7 @@ However, when we `JSON.stringify` this object:
 JSON.stringify(obj) // '{"a":0.1}'
 ```
 
-we notice that, despite the fact that every JSON specification allows numbers to have *arbitrary* precision, quite a lot of information has been lost. Similar problems affect very large numbers.
+we notice that, despite the fact that every JSON specification allows numbers to have arbitrary precision, quite a lot of information has been lost. Similar problems affect very large numbers.
 
 `precise-json` is intended to solve this problem. And, in general, to prevent *any* information from being lost at JSON stringification time and at JSON parsing time.
 
