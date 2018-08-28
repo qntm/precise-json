@@ -13,5 +13,23 @@
     "jest": "^23.5.0"
   },
   "author": "qntm",
-  "license": "MIT"
+  "license": "MIT",
+  "main": "src/main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qntm/precise-json.git"
+  },
+  "keywords": [
+    "json",
+    "javascript",
+    "precise",
+    "lossless",
+    "decimal",
+    "floating",
+    "point"
+  ],
+  "bugs": {
+    "url": "https://github.com/qntm/precise-json/issues"
+  },
+  "homepage": "https://github.com/qntm/precise-json#readme"
 }
