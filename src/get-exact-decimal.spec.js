@@ -10,7 +10,7 @@ describe('get-exact-decimal', () => {
   })
 
   it('does okay with -0', () => {
-    const neg0 = getExactDecimal('-0')
+    const neg0 = getExactDecimal(-0)
     expect(neg0.equals(-0)).toBe(true)
     expect(neg0.isNegative()).toBe(true)
     // but toFixed omits the leading 0 :-/

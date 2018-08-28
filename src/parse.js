@@ -26,6 +26,9 @@ module.exports = MonoParser(resolve({
     .map(([open, keyvalues, close]) => {
       const obj = {}
       keyvalues.forEach(({key, value}) => {
+        if (key in obj) {
+          throw Error(`Duplicate key ${key}`)
+        }
         obj[key] = value
       })
       return obj

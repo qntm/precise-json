@@ -19,6 +19,7 @@ describe('stringify', () => {
   it('handles numbers correctly', () => {
     expect(stringify(-0)).toBe('-0')
     expect(stringify(0.1)).toBe('0.1000000000000000055511151231257827021181583404541015625')
+    expect(stringify({a: 90071992547409904})).toBe('{"a":90071992547409904}')
   })
 
   it('dislikes string properties of arrays', () => {
