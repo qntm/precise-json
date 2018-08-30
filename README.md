@@ -1,5 +1,7 @@
 # precise-json
 
+`precise-json` is a replacement for `JSON.parse` and `JSON.stringify` intended to prevent information of any kind, particularly numerical information, from being lost.
+
 If we construct a JavaScript object like so:
 
 ```js
@@ -16,24 +18,40 @@ However, when we `JSON.stringify` this object:
 JSON.stringify(obj) // '{"a":0.1}'
 ```
 
-we notice that, despite the fact that every JSON specification allows numbers to have arbitrary precision, quite a lot of information has been lost. A very similar problem affects large numbers:
+we notice that, despite the fact that every JSON specification allows numbers to have arbitrary precision, quite a lot of information has been silently lost. A very similar problem affects large numbers:
 
 ```js
 JSON.stringify({a: 90071992547409904}) // '{"a":90071992547409900}'
 ```
 
-The purpose of `precise-json` is to prevent not only numerical information but any information of any kind from being lost, both at JSON stringification time and at JSON parsing time.
+And information can also be silently lost at parse time:
+
+```js
+JSON.parse('{"a":1,"a":2}') // {a: 2}
+```
+
+`precise-json` is the solution to these problems. As we see here:
+
+```sh
+npm install precise-json
+```
 
 ```js
 import preciseJson from 'precise-json'
 
 preciseJson.stringify({a: 0.1})
 // '{"a":0.1000000000000000055511151231257827021181583404541015625}'
+
+preciseJson.stringify({a: 90071992547409904})
+// '{"a":90071992547409904}'
+
+preciseJson.parse('{"a":1,"a":2}')
+// throws an exception
 ```
 
 ## preciseJson.stringify(value)
 
-Works like `JSON.stringify(value)` (*q.v.*) but throws an exception if you attempt to stringify any of the following:
+Works like [`JSON.stringify(value)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) but throws an exception if you attempt to stringify any of the following:
 
 * `undefined`
 * `Infinity`, `-Infinity` or `NaN`
@@ -66,9 +84,9 @@ This means that if the JSON parser at the far end is capable of losslessly parsi
 
 This is much less likely to be useful to you, unless the JSON string which you are parsing was originally constructed by `preciseJson.stringify`.
 
-As with `preciseJson.stringify`, the idea is to prevent information from being lost. `preciseJson.parse` works exactly like `JSON.parse` except that it throws an exception if it attempts to parse any of the following:
+As with `preciseJson.stringify`, the idea is to prevent information from being lost. `preciseJson.parse` works exactly like [`JSON.parse`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse) except that it throws an exception if it attempts to parse any of the following:
 
 * a number which cannot be precisely represented as a JavaScript number
 * an object with duplicate keys
 
-This means that e.g. `preciseJson.parse('{"a":0.1}')` will fail. However, `preciseJson.parse('{"a":0.1000000000000000055511151231257827021181583404541015625}')` will work just fine, returning an object `{a: 0.1}`. Additionally, the ambiguity of '{"a":0,"a":1}' is now helpfully and permanently resolved in the way it should always have been: with an error.
+This means that e.g. `preciseJson.parse('{"a":0.1}')` will fail. However, `preciseJson.parse('{"a":0.1000000000000000055511151231257827021181583404541015625}')` will work just fine, returning an object `{a: 0.1}`. Additionally, the ambiguity of `'{"a":0,"a":1}'` is now helpfully and permanently resolved in the way it should always have been: with an error.
