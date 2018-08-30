@@ -27,7 +27,7 @@ JSON.stringify({a: 90071992547409904}) // '{"a":90071992547409900}'
 And information can also be silently lost at parse time:
 
 ```js
-JSON.parse('{"a":1,"a":2}') // {a: 2}
+JSON.parse('{"a":0.1}') // {a: 0.1}
 ```
 
 `precise-json` is the solution to these problems. As we see here:
@@ -45,7 +45,10 @@ preciseJson.stringify({a: 0.1})
 preciseJson.stringify({a: 90071992547409904})
 // '{"a":90071992547409904}'
 
-preciseJson.parse('{"a":1,"a":2}')
+preciseJson.parse('{"a":0.1000000000000000055511151231257827021181583404541015625}')
+// {a: 0.1}
+
+preciseJson.parse('{"a":0.1}')
 // throws an exception
 ```
 
