@@ -2,10 +2,36 @@
 
 const getExactDecimal = require('./get-exact-decimal')
 
+const validatePropertyDescriptor = (propertyName, propertyDescriptor) => {
+  // A property descriptor is either a data descriptor or an accessor descriptor.
+  // Every property descriptor has the following two properties:
+  if (propertyDescriptor.configurable !== true) {
+    throw Error(`Can't stringify a value with non-configurable property ${stringify(propertyName)}`)
+  }
+  if (propertyDescriptor.enumerable !== true) {
+    throw Error(`Can't stringify a value with non-enumerable property ${stringify(propertyName)}`)
+  }
+
+  // A data descriptor also has a `value` and this:
+  if (propertyDescriptor.writable !== true) {
+    throw Error(`Can't stringify a value with read-only property ${stringify(propertyName)}`)
+  }
+
+  // An accessor descriptor instead also has these:
+  if ('get' in propertyDescriptor) {
+    throw Error(`Can't stringify a value with getter property ${stringify(propertyName)}`)
+  }
+  if ('set' in propertyDescriptor) {
+    throw Error(`Can't stringify a value with setter property ${stringify(propertyName)}`)
+  }
+
+  // Otherwise OK
+}
+
 const stringify = value => {
   const type = typeof value
   if (type === 'undefined') {
-    throw Error('Cannot stringify `undefined`')
+    throw Error('Can\'t stringify `undefined`')
   }
 
   if (type === 'boolean') {
@@ -15,6 +41,8 @@ const stringify = value => {
 
   if (type === 'number') {
     // Numbers can't have extra properties added as far as I know...
+    // A `Decimal` instance with value -0 doesn't preserve the leading unary minus
+    // sign on `toFixed` for some reason
     return Object.is(-0, value) ? '-0' : getExactDecimal(value).toFixed()
   }
 
@@ -24,11 +52,11 @@ const stringify = value => {
   }
 
   if (type === 'symbol') {
-    throw Error('Cannot stringify a Symbol')
+    throw Error('Can\'t stringify a Symbol')
   }
 
   if (type === 'function') {
-    throw Error('Cannot stringify a Function')
+    throw Error('Can\'t stringify a Function')
   }
 
   if (type === 'object') {
@@ -36,57 +64,57 @@ const stringify = value => {
       return JSON.stringify(value)
     }
 
+    const ownPropertySymbols = Object.getOwnPropertySymbols(value)
+    if (ownPropertySymbols.length > 0) {
+      throw Error(`Can't stringify a value with symbol property ${String(ownPropertySymbols[0])}`)
+    }
+
     const proto = Object.getPrototypeOf(value)
+
     if (proto === Array.prototype) {
-      const keys = {}
-      Object.keys(value).forEach(key => {
-        keys[key] = true
+      const expected = {}
+      Object.getOwnPropertyNames(value).forEach(ownPropertyName => {
+        expected[ownPropertyName] = true
       })
 
-      let stringifiedElements = []
-      for (let i = 0; i < value.length; i++) {
-        stringifiedElements.push(stringify(value[i]))
-        if (i in keys) {
-          delete keys[i]
-        } else {
-          throw Error('This should be impossible')
+      const stringifiedElements = []
+      for (let ownPropertyName = 0; ownPropertyName < value.length; ownPropertyName++) {
+        const ownPropertyDescriptor = Object.getOwnPropertyDescriptor(value, ownPropertyName)
+        if (ownPropertyDescriptor === undefined) {
+          throw Error(`Can't stringify array with missing entry: ${stringify(ownPropertyName)}`)
         }
+
+        validatePropertyDescriptor(ownPropertyName, ownPropertyDescriptor)
+
+        stringifiedElements.push(stringify(ownPropertyDescriptor.value))
+        delete expected[ownPropertyName]
       }
 
+      delete expected.length
+
       // That should be all of them
-      if (Object.keys(keys).length > 0) {
-        throw Error(`Array has an extra key: ${Object.keys(keys)[0]}`)
+      if (Object.keys(expected).length > 0) {
+        const ownPropertyName = Object.keys(expected)[0]
+        throw Error(`Can't stringify array with extra property: ${stringify(ownPropertyName)}`)
       }
 
       return '[' + stringifiedElements.join(',') + ']'
     }
 
     if (proto === Object.prototype) {
-      const ownPropertySymbols = Object.getOwnPropertySymbols(value)
-      if (ownPropertySymbols.length > 0) {
-        throw Error(`Can't stringify an object with symbol property ${String(ownPropertySymbols[0])}`)
+      const ownPropertyNames = Object.getOwnPropertyNames(value)
+
+      const stringifiedProperties = []
+      for (let i = 0; i < ownPropertyNames.length; i++) {
+        const ownPropertyName = ownPropertyNames[i]
+        const ownPropertyDescriptor = Object.getOwnPropertyDescriptor(value, ownPropertyName)
+
+        validatePropertyDescriptor(ownPropertyName, ownPropertyDescriptor)
+
+        stringifiedProperties.push(stringify(ownPropertyName) + ':' + stringify(ownPropertyDescriptor.value))
       }
 
-      return '{' + Object.getOwnPropertyNames(value).map(ownPropertyName => {
-        const ownPropertyDescriptor = Object.getOwnPropertyDescriptor(value, ownPropertyName)
-        if (ownPropertyDescriptor.writable !== true) {
-          throw Error(`Can't stringify an object with read-only property ${ownPropertyName}`)
-        }
-        if (ownPropertyDescriptor.get !== undefined) {
-          throw Error(`Can't stringify an object with getter property ${ownPropertyName}`)
-        }
-        if (ownPropertyDescriptor.set !== undefined) {
-          throw Error(`Can't stringify an object with setter property ${ownPropertyName}`)
-        }
-        if (ownPropertyDescriptor.configurable !== true) {
-          throw Error(`Can't stringify an object with non-configurable property ${ownPropertyName}`)
-        }
-        if (ownPropertyDescriptor.enumerable !== true) {
-          throw Error(`Can't stringify an object with non-enumerable property ${ownPropertyName}`)
-        }
-
-        return stringify(ownPropertyName) + ':' + stringify(ownPropertyDescriptor.value)
-      }).join(',') + '}'
+      return '{' + stringifiedProperties.join(',') + '}'
     }
 
     throw Error(`Can't stringify object with prototype ${proto}`)

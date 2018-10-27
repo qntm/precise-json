@@ -1,6 +1,6 @@
 {
   "name": "precise-json",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Lossless JSON stringifier and parser",
   "scripts": {
     "test": "jest"

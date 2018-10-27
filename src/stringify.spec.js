@@ -25,14 +25,21 @@ describe('stringify', () => {
   it('dislikes string properties of arrays', () => {
     const a = ['foo', 'bar']
     a.baz = 'quux'
-    expect(() => stringify(a)).toThrow()
+    expect(() => stringify(a)).toThrowError('Can\'t stringify array with extra property: "baz"')
+  })
+
+  it('throws on a sparse array', () => {
+    expect(() => stringify([,,,'asdf']))
+      .toThrowError('Can\'t stringify array with missing entry: 0')
+    expect(() => stringify([9,10,,11]))
+      .toThrowError('Can\'t stringify array with missing entry: 2')
   })
 
   it('ignores toJSON', () => {
     const a = {
       toJSON: () => 'aaa'
     }
-    expect(() => stringify(a)).toThrow() // function property cannot be stringified
+    expect(() => stringify(a)).toThrowError('Can\'t stringify a Function') // function property cannot be stringified
 
     const b = Object.create(a)
     expect(() => stringify(b)).toThrow() // object whose prototype is not Object cannot be stringified
@@ -42,9 +49,42 @@ describe('stringify', () => {
     expect(() => stringify(Object.create(Object.prototype, {
       x: {
         value: 'x',
+        writable: true,
+        configurable: true,
         enumerable: false
       }
-    }))).toThrowError('Can\'t stringify an object with read-only property x')
+    }))).toThrowError('Can\'t stringify a value with non-enumerable property "x"')
+  })
+
+  it('throws on read-only properties', () => {
+    expect(() => stringify(Object.create(Object.prototype, {
+      x: {
+        value: 'x',
+        writable: false,
+        configurable: true,
+        enumerable: true
+      }
+    }))).toThrowError('Can\'t stringify a value with read-only property "x"')
+  })
+
+  it('throws if an array has a symbol property', () => {
+    const arr = [5, 6, 7]
+    arr[Symbol('boogida-WHAAAT')] = 8
+    expect(() => stringify(arr))
+      .toThrowError('Can\'t stringify a value with symbol property Symbol(boogida-WHAAAT)')
+  })
+
+  it('throws if an array has a non-configurable property', () => {
+    const arr = [5, 6, 7]
+    Object.defineProperty(arr, 1, {
+      value: 6,
+      writable: true,
+      configurable: false,
+      enumerable: true,
+    })
+
+    expect(() => stringify(arr))
+      .toThrowError('Can\'t stringify a value with non-configurable property 1')
   })
 
   describe('fails on various things', () => {
@@ -84,11 +124,11 @@ describe('stringify', () => {
       new Uint16Array([1]),
       new Uint32Array([1]),
       new Float32Array([1]),
-      new Float64Array([1])
+      new Float64Array([1]),
+      Object(Symbol('aaa'))
     ]
 
     values.forEach((value, i) => {
-
       let testName
       try {
         testName = String(value)

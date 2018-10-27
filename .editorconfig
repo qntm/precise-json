@@ -6,3 +6,6 @@ indent_size = 2
 
 [*.json]
 insert_final_newline = false
+
+[package.json]
+insert_final_newline = true
