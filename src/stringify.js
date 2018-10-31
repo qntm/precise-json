@@ -71,7 +71,10 @@ const stringify = value => {
 
     const proto = Object.getPrototypeOf(value)
 
-    if (proto === Array.prototype) {
+    if (Array.isArray(value)) {
+      if (proto !== Array.prototype) {
+        throw Error('Can\'t stringify an array which does not inherit from Array.prototype')
+      }
       const expected = {}
       Object.getOwnPropertyNames(value).forEach(ownPropertyName => {
         expected[ownPropertyName] = true

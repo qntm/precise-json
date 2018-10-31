@@ -90,6 +90,7 @@ describe('stringify', () => {
   describe('fails on various things', () => {
     const values = [
       Object.create(null, {}), // wrong prototype (can't be stringified either)
+      { __proto__: Array.prototype, length: 1, 0: 'a' },
       function () {},
       () => {},
       [,,,,4],
