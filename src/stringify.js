@@ -72,7 +72,13 @@ const stringify = value => {
       throw Error(`Can't stringify a value with symbol property ${String(ownPropertySymbols[0])}`)
     }
 
+    const proto = Object.getPrototypeOf(value)
+
     if (Array.isArray(value)) {
+      if (proto !== Array.prototype) {
+        throw Error('Can\'t stringify an array which does not inherit from Array.prototype')
+      }
+
       const expected = {}
       Object.getOwnPropertyNames(value).forEach(ownPropertyName => {
         expected[ownPropertyName] = true
@@ -101,8 +107,6 @@ const stringify = value => {
 
       return '[' + stringifiedElements.join(',') + ']'
     }
-
-    const proto = Object.getPrototypeOf(value)
 
     if (proto === Object.prototype) {
       const ownPropertyNames = Object.getOwnPropertyNames(value)
