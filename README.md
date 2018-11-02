@@ -62,10 +62,11 @@ Works like [`JSON.stringify(value)`](https://developer.mozilla.org/en-US/docs/We
 * a function
 * a sparse array (e.g. `[,,,4]`)
 * an array with non-numeric keys (e.g. `const arr = []; arr.foo = 'bar'`)
+* a non-extensible object
 * an object with
   * a symbol property
   * a read-only property
-  * a getter or setter property
+  * an accessor (getter/setter) property
   * a non-configurable property
   * a non-enumerable property
 * any object whose prototype is not `Array.prototype` or `Object.prototype`, such as
@@ -73,6 +74,8 @@ Works like [`JSON.stringify(value)`](https://developer.mozilla.org/en-US/docs/We
   * a boxed `String`, `Number` or `Boolean`
   * a `Map`, `Set`, `WeakMap` or `WeakSet`
   * any typed array
+* an object whose prototype has been altered using `__proto__` or `Object.setPrototypeOf`
+  * wherever possible
 
 The idea is that any information which cannot be preserved in the JSON format and then theoretically read back by a JSON parser at the far end is not suitable for stringification. Contrast with `JSON.stringify`, which silently replaces unstringifiable values with `null`s and does other puzzling, ambiguating things.
 

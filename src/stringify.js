@@ -108,7 +108,13 @@ const stringify = value => {
       return '[' + stringifiedElements.join(',') + ']'
     }
 
-    if (proto === Object.prototype) {
+    // There is no `Object.isObject` analogous to `Array.isArray`.
+    // This is as close as we can get programmatically
+    if (Object.prototype.toString.call(value) === '[object Object]') {
+      if (proto !== Object.prototype) {
+        throw Error('Can\'t stringify an object which does not inherit from Object.prototype')
+      }
+
       const ownPropertyNames = Object.getOwnPropertyNames(value)
 
       const stringifiedProperties = []

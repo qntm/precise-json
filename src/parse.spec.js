@@ -6,6 +6,10 @@ const path = require('path')
 const parse = require('./parse')
 
 describe('parse', () => {
+  it('throws on a non-string', () => {
+    expect(() => parse(89)).toThrowError('Can\'t parse non-string 89')
+  })
+
   it('works...?', () => {
     expect(parse('1')).toBe(1)
     expect(() => parse('0.1')).toThrowError()
@@ -37,6 +41,10 @@ describe('parse', () => {
     expect(() => parse('{"a":1,"a":1}')).toThrowError('Duplicate key a')
     expect(() => parse('{"a":"b","a":"b"}')).toThrowError('Duplicate key a')
     expect(() => parse('{"a":0, "a":-0}')).toThrowError('Duplicate key a')
+  })
+
+  it('fails on poo', () => {
+    expect(() => parse('{ "💩": 0, "\uD83D\uDCA9": 1 }')).toThrowError('Duplicate key 💩')
   })
 
   describe('file data tests', () => {

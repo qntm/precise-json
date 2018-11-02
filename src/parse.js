@@ -3,7 +3,7 @@ const strictParseFloat = require('./strict-parse-float')
 const { MonoParser, resolve, seq, fixed, or, unicode, wseq } = require('green-parse')
 
 // This object parses JSON strings.
-module.exports = MonoParser(resolve({
+const monoParser = MonoParser(resolve({
   topValue: matchers => seq([matchers.WHITESPACE, matchers.value, matchers.WHITESPACE])
     .map(([space1, object, space2]) => object),
 
@@ -73,11 +73,11 @@ module.exports = MonoParser(resolve({
     .map(([open, string, close]) => string),
 
   'char': matchers => or([
-    unicode.filter(match =>
+    unicode.filter(match => (
       match !== '"' &&
       match !== '\\' &&
       match.charCodeAt(0) > 0x1F // U+007F DEL is not considered a control character!
-    ),
+    )),
     fixed('\\"').map(() => '"'),
     fixed('\\\\').map(() => '\\'),
     fixed('\\/').map(() => '/'),
@@ -129,3 +129,11 @@ module.exports = MonoParser(resolve({
     })
     .filter(number => number !== null)
 }).topValue)
+
+module.exports = str => {
+  if (typeof str !== 'string') {
+    throw Error(`Can't parse non-string ${str}`)
+  }
+
+  return monoParser(str)
+}

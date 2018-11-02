@@ -50,7 +50,7 @@ describe('stringify', () => {
     expect(Array.isArray(imitationArray)).toBe(false)
 
     expect(() => stringify(imitationArray))
-      .toThrowError('Can\'t stringify object with prototype ' + Array.prototype)
+      .toThrowError('Can\'t stringify an object which does not inherit from Object.prototype')
   })
 
   it('throws on non-extensible objects', () => {
@@ -131,7 +131,11 @@ describe('stringify', () => {
       Object.create(null, {}), // wrong prototype (can't be stringified either)
       { __proto__: Array.prototype, length: 1, 0: 'a' },
       Object.setPrototypeOf([], null),
-      new (class extends Array {}),
+      Object.setPrototypeOf([], Object.prototype),
+      Object.setPrototypeOf(new Date(), Object.prototype),
+      Object.setPrototypeOf(/a/, Object.prototype),
+      Object.setPrototypeOf(Error(), Object.prototype),
+      new (class extends Array {})(),
       function () {},
       () => {},
 
