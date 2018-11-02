@@ -1,3 +1,5 @@
+/* eslint-env jest */
+
 const strictParseFloat = require('./strict-parse-float')
 
 describe('strict-parse-float', () => {

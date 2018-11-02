@@ -6,13 +6,19 @@ Decimal.set({
   precision: 10000
 })
 
+// Parse a string representation of a number and return a JavaScript number or, if available,
+// a BigInt. If the number cannot be represented as such, throws an exception. Prefers
+// numbers to BigInts.
 module.exports = string => {
   if (typeof string !== 'string') {
     throw Error('Cannot parse a non-string')
   }
 
-  const decimal = new Decimal(string) // This will be precise
-  const number = decimal.toNumber() // This may have lost some precision and could even be infinite. How can we tell?
+  const decimal = new Decimal(string)
+  // This will be precise
+
+  const number = decimal.toNumber()
+  // This may have lost some precision and could even be infinite. How can we tell?
 
   if (!Number.isFinite(number)) {
     // `number` cannot be NaN but in any case this condition would catch this

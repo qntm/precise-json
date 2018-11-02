@@ -17,7 +17,7 @@ module.exports = number => {
     throw Error('Cannot get a Decimal for a non-finite number')
   }
 
-  const {sign, exponent, mantissa} = decodeFloat(number)
+  const { sign, exponent, mantissa } = decodeFloat(number)
 
   // Special cases for `exponent` 0 (subnormals)
 

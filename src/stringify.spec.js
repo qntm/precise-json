@@ -1,9 +1,10 @@
+/* eslint-env jest */
+
 const stringify = require('./stringify')
-const parse = require('./parse')
 
 describe('stringify', () => {
   it('works normally', () => {
-    expect(stringify({a: [null, 7, true, 'b']})).toBe('{"a":[null,7,true,"b"]}')
+    expect(stringify({ a: [null, 7, true, 'b'] })).toBe('{"a":[null,7,true,"b"]}')
   })
 
   it('MDN basics', () => {
@@ -12,14 +13,14 @@ describe('stringify', () => {
     expect(stringify('foo')).toBe('"foo"')
     expect(stringify([1, 'false', false])).toBe('[1,"false",false]')
     expect(stringify([null])).toBe('[null]')
-    expect(stringify({x: 5})).toBe('{"x":5}')
-    expect(stringify({x: 5, y: 6})).toBe('{"x":5,"y":6}')
+    expect(stringify({ x: 5 })).toBe('{"x":5}')
+    expect(stringify({ x: 5, y: 6 })).toBe('{"x":5,"y":6}')
   })
 
   it('handles numbers correctly', () => {
     expect(stringify(-0)).toBe('-0')
     expect(stringify(0.1)).toBe('0.1000000000000000055511151231257827021181583404541015625')
-    expect(stringify({a: 90071992547409904})).toBe('{"a":90071992547409904}')
+    expect(stringify({ a: 90071992547409904 })).toBe('{"a":90071992547409904}')
   })
 
   it('dislikes string properties of arrays', () => {
@@ -29,10 +30,33 @@ describe('stringify', () => {
   })
 
   it('throws on a sparse array', () => {
-    expect(() => stringify([,,,'asdf']))
+    // eslint-disable-next-line no-sparse-arrays
+    expect(() => stringify([,,, 'asdf']))
       .toThrowError('Can\'t stringify array with missing entry: 0')
-    expect(() => stringify([9,10,,11]))
+
+    // eslint-disable-next-line no-sparse-arrays
+    expect(() => stringify([9, 10,, 11]))
       .toThrowError('Can\'t stringify array with missing entry: 2')
+  })
+
+  it('throws on an "imitation" array', () => {
+    // Using `__proto__` is strongly deprecated but whatever
+    const imitationArray = { __proto__: Array.prototype, length: 1, 0: 'a' }
+
+    // This is how we previously tested for arrayness
+    expect(Object.getPrototypeOf(imitationArray)).toBe(Array.prototype)
+
+    // This is how we should always have performed this test
+    expect(Array.isArray(imitationArray)).toBe(false)
+
+    expect(() => stringify(imitationArray))
+      .toThrowError('Can\'t stringify object with prototype ' + Array.prototype)
+  })
+
+  it('throws on non-extensible objects', () => {
+    const closed = Object.preventExtensions({})
+    expect(() => stringify(closed))
+      .toThrowError('Can\'t stringify a non-extensible object')
   })
 
   it('ignores toJSON', () => {
@@ -67,6 +91,21 @@ describe('stringify', () => {
     }))).toThrowError('Can\'t stringify a value with read-only property "x"')
   })
 
+  it('throws on accessor properties', () => {
+    expect(() => stringify(Object.create(Object.prototype, {
+      x: {
+        configurable: true,
+        enumerable: true,
+        get: function () {
+          return this.stored_x
+        },
+        set: function (x) {
+          this.stored_x = x
+        }
+      }
+    }))).toThrowError('Can\'t stringify a value with accessor property "x"')
+  })
+
   it('throws if an array has a symbol property', () => {
     const arr = [5, 6, 7]
     arr[Symbol('boogida-WHAAAT')] = 8
@@ -80,7 +119,7 @@ describe('stringify', () => {
       value: 6,
       writable: true,
       configurable: false,
-      enumerable: true,
+      enumerable: true
     })
 
     expect(() => stringify(arr))
@@ -92,10 +131,19 @@ describe('stringify', () => {
       Object.create(null, {}), // wrong prototype (can't be stringified either)
       function () {},
       () => {},
-      [,,,,4],
+
+      // eslint-disable-next-line no-sparse-arrays
+      [,,,, 4],
+
+      // eslint-disable-next-line no-new-wrappers
       new Number(3),
+
+      // eslint-disable-next-line no-new-wrappers
       new String('false'),
+
+      // eslint-disable-next-line no-new-wrappers
       new Boolean(false),
+
       new Date(2006, 0, 2, 15, 4, 5),
       global,
       module,
@@ -110,12 +158,12 @@ describe('stringify', () => {
       Symbol(''),
       Symbol('aa'),
       Symbol.for('foo'),
-      {[Symbol('foo')]: 'foo'},
-      {[Symbol.for('foo')]: 'foo'},
+      { [Symbol('foo')]: 'foo' },
+      { [Symbol.for('foo')]: 'foo' },
       new Set([1]),
       new Map([[1, 2]]),
-      new WeakSet([{a: 1}]),
-      new WeakMap([[{a: 1}, 2]]),
+      new WeakSet([{ a: 1 }]),
+      new WeakMap([[{ a: 1 }, 2]]),
       new Int8Array([1]),
       new Int16Array([1]),
       new Int32Array([1]),

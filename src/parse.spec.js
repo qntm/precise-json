@@ -1,3 +1,5 @@
+/* eslint-env jest */
+
 const fs = require('fs')
 const path = require('path')
 
@@ -20,7 +22,7 @@ describe('parse', () => {
       '123123e100000',
       '-123123e100000'
     ]
-  
+
     strings.forEach(string => {
       expect(() => parse(string)).toThrowError()
     })
@@ -48,8 +50,8 @@ describe('parse', () => {
       let referenceThrew = false
       let referenceParsedValue
       try {
-        referenceParsedValue = JSON.parse(content)
-      } catch(e) {
+        referenceParsedValue = referenceImplementation(content)
+      } catch (e) {
         referenceThrew = true
       }
 

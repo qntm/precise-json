@@ -8,21 +8,19 @@ const validatePropertyDescriptor = (propertyName, propertyDescriptor) => {
   if (propertyDescriptor.configurable !== true) {
     throw Error(`Can't stringify a value with non-configurable property ${stringify(propertyName)}`)
   }
+
   if (propertyDescriptor.enumerable !== true) {
     throw Error(`Can't stringify a value with non-enumerable property ${stringify(propertyName)}`)
   }
 
-  // A data descriptor also has a `value` and this:
-  if (propertyDescriptor.writable !== true) {
-    throw Error(`Can't stringify a value with read-only property ${stringify(propertyName)}`)
+  // An accessor descriptor also has these two properties:
+  if ('get' in propertyDescriptor || 'set' in propertyDescriptor) {
+    throw Error(`Can't stringify a value with accessor property ${stringify(propertyName)}`)
   }
 
-  // An accessor descriptor instead also has these:
-  if ('get' in propertyDescriptor) {
-    throw Error(`Can't stringify a value with getter property ${stringify(propertyName)}`)
-  }
-  if ('set' in propertyDescriptor) {
-    throw Error(`Can't stringify a value with setter property ${stringify(propertyName)}`)
+  // A data descriptor instead also has a `value` and this:
+  if (propertyDescriptor.writable !== true) {
+    throw Error(`Can't stringify a value with read-only property ${stringify(propertyName)}`)
   }
 
   // Otherwise OK
@@ -59,9 +57,14 @@ const stringify = value => {
     throw Error('Can\'t stringify a Function')
   }
 
+  /* istanbul ignore else */
   if (type === 'object') {
     if (value === null) {
       return JSON.stringify(value)
+    }
+
+    if (!Object.isExtensible(value)) {
+      throw Error(`Can't stringify a non-extensible object`)
     }
 
     const ownPropertySymbols = Object.getOwnPropertySymbols(value)
@@ -69,9 +72,7 @@ const stringify = value => {
       throw Error(`Can't stringify a value with symbol property ${String(ownPropertySymbols[0])}`)
     }
 
-    const proto = Object.getPrototypeOf(value)
-
-    if (proto === Array.prototype) {
+    if (Array.isArray(value)) {
       const expected = {}
       Object.getOwnPropertyNames(value).forEach(ownPropertyName => {
         expected[ownPropertyName] = true
@@ -101,6 +102,8 @@ const stringify = value => {
       return '[' + stringifiedElements.join(',') + ']'
     }
 
+    const proto = Object.getPrototypeOf(value)
+
     if (proto === Object.prototype) {
       const ownPropertyNames = Object.getOwnPropertyNames(value)
 
@@ -120,6 +123,7 @@ const stringify = value => {
     throw Error(`Can't stringify object with prototype ${proto}`)
   }
 
+  /* istanbul ignore next */
   throw Error(`This should be impossible: Unrecognised type: ${type}`)
 }
 

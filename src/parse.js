@@ -1,6 +1,6 @@
 const strictParseFloat = require('./strict-parse-float')
 
-const {MonoParser, resolve, seq, fixed, plus, or, unicode, star, wplus, wseq} = require('green-parse')
+const { MonoParser, resolve, seq, fixed, or, unicode, wseq } = require('green-parse')
 
 // This object parses JSON strings.
 module.exports = MonoParser(resolve({
@@ -25,7 +25,7 @@ module.exports = MonoParser(resolve({
   ], matchers.WHITESPACE)
     .map(([open, keyvalues, close]) => {
       const obj = {}
-      keyvalues.forEach(({key, value}) => {
+      keyvalues.forEach(({ key, value }) => {
         if (key in obj) {
           throw Error(`Duplicate key ${key}`)
         }
@@ -35,7 +35,7 @@ module.exports = MonoParser(resolve({
     }),
 
   keyvalue: matchers => wseq([matchers.string, fixed(':'), matchers.value], matchers.WHITESPACE)
-    .map(([key, colon, value]) => ({key, value})),
+    .map(([key, colon, value]) => ({ key, value })),
 
   array: matchers => or([
     matchers.fullarray,
