@@ -31,5 +31,5 @@ module.exports = number => {
     ((uint8Array[1] & 0b11111111) * Math.pow(1 << 8, 1)) +
     ((uint8Array[0] & 0b11111111) * Math.pow(1 << 8, 0))
 
-  return {sign, exponent, mantissa}
+  return { sign, exponent, mantissa }
 }
