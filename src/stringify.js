@@ -1,6 +1,7 @@
 // Stringify a thingum
 
 const getExactDecimal = require('./get-exact-decimal')
+const isObject = require('./is-object')
 
 const validatePropertyDescriptor = (propertyName, propertyDescriptor) => {
   // A property descriptor is either a data descriptor or an accessor descriptor.
@@ -74,9 +75,12 @@ const stringify = value => {
 
     const proto = Object.getPrototypeOf(value)
 
-    if (Array.isArray(value)) {
-      if (proto !== Array.prototype) {
-        throw Error('Can\'t stringify an array which does not inherit from Array.prototype')
+    if (proto === Array.prototype) {
+      // Surprise! Object prototypes are mutable, and a non-array can be given prototype `Array.prototype`
+      // manually after the fact. However, "arrayness" is a magical *immutable* property, which stays with
+      // the value even if its prototype is mutated. We can test for this like so:
+      if (!Array.isArray(value)) {
+        throw Error('Can\'t stringify a non-array with prototype Array.prototype')
       }
 
       const expected = {}
@@ -108,11 +112,10 @@ const stringify = value => {
       return '[' + stringifiedElements.join(',') + ']'
     }
 
-    // There is no `Object.isObject` analogous to `Array.isArray`.
-    // This is as close as we can get programmatically
-    if (Object.prototype.toString.call(value) === '[object Object]') {
-      if (proto !== Object.prototype) {
-        throw Error('Can\'t stringify an object which does not inherit from Object.prototype')
+    if (proto === Object.prototype) {
+      // There's no equivalent to `Array.isArray`, but we have our own approximation
+      if (!isObject(value)) {
+        throw Error('Can\'t stringify a non-Plain Old JavaScript Object with prototype Object.prototype')
       }
 
       const ownPropertyNames = Object.getOwnPropertyNames(value)

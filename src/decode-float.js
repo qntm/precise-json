@@ -17,6 +17,7 @@ module.exports = number => {
 
   const sign =
     ((uint8Array[7] & 0b10000000) >> 7)
+
   const exponent =
     ((uint8Array[7] & 0b01111111) << 4) +
     ((uint8Array[6] & 0b11110000) >> 4)

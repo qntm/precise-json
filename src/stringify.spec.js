@@ -50,7 +50,7 @@ describe('stringify', () => {
     expect(Array.isArray(imitationArray)).toBe(false)
 
     expect(() => stringify(imitationArray))
-      .toThrowError('Can\'t stringify an object which does not inherit from Object.prototype')
+      .toThrowError('Can\'t stringify a non-array with prototype Array.prototype')
   })
 
   it('throws on non-extensible objects', () => {
@@ -126,15 +126,64 @@ describe('stringify', () => {
       .toThrowError('Can\'t stringify a value with non-configurable property 1')
   })
 
+  it('throws on arguments objects, even "imitation" ones', () => {
+    const x = (function () { return arguments }())
+    expect(() => stringify(x))
+      .toThrowError('Can\'t stringify a value with symbol property Symbol(Symbol.iterator)')
+    expect(() => stringify(Object.setPrototypeOf(x, Object.prototype)))
+      .toThrowError('Can\'t stringify a value with symbol property Symbol(Symbol.iterator)')
+  })
+
+  describe('fails on "imitation" POJSOs', () => {
+    const cases = {
+      // eslint-disable-next-line no-new-wrappers
+      'boxed Boolean': new Boolean(),
+
+      // eslint-disable-next-line no-new-wrappers
+      'boxed number': new Number(),
+
+      // eslint-disable-next-line no-new-wrappers
+      'boxed string': new String(),
+
+      'date object': new Date(),
+      'regular expression': /a/,
+      Int8Array: new Int8Array([]),
+      Int16Array: new Int16Array([]),
+      Int32Array: new Int32Array([]),
+      Uint8Array: new Uint8Array([]),
+      Uint8ClampedArray: new Uint8ClampedArray([]),
+      Uint16Array: new Uint16Array([]),
+      Uint32Array: new Uint32Array([]),
+      Float32Array: new Float32Array([]),
+      Float64Array: new Float64Array([]),
+      set: new Set([1]),
+      map: new Map([[1, 2]]),
+      'weak set': new WeakSet([{ a: 1 }]),
+      'weak map': new WeakMap([[{ a: 1 }, 2]])
+    }
+
+    Object.entries(cases).forEach(([key, value]) => {
+      it(key, () => {
+        expect(() => stringify(Object.setPrototypeOf(value, Object.prototype)))
+          .toThrowError('Can\'t stringify a non-Plain Old JavaScript Object with prototype Object.prototype')
+      })
+    })
+
+    it('fails on "imitation" POJSO array', () => {
+      expect(() => stringify(Object.setPrototypeOf([], Object.prototype)))
+        .toThrowError('Can\'t stringify a value with non-configurable property "length"')
+    })
+
+    it('fails on "imitation" POJSO error', () => {
+      expect(() => stringify(Object.setPrototypeOf(Error(), Object.prototype)))
+        .toThrowError('Can\'t stringify a value with non-enumerable property "stack"')
+    })
+  })
+
   describe('fails on various things', () => {
     const values = [
       Object.create(null, {}), // wrong prototype (can't be stringified either)
-      { __proto__: Array.prototype, length: 1, 0: 'a' },
       Object.setPrototypeOf([], null),
-      Object.setPrototypeOf([], Object.prototype),
-      Object.setPrototypeOf(new Date(), Object.prototype),
-      Object.setPrototypeOf(/a/, Object.prototype),
-      Object.setPrototypeOf(Error(), Object.prototype),
       new (class extends Array {})(),
       function () {},
       () => {},
