@@ -78,6 +78,8 @@ const isWeakSet = o => {
   return true
 }
 
+const isTagged = o => Object.prototype.toString.call(o) !== '[object Object]'
+
 module.exports = x =>
   !isArguments(x) &&
   !isBigint(x) &&
@@ -91,4 +93,5 @@ module.exports = x =>
   !isSymbol(x) &&
   !isTypedArray(x) &&
   !isWeakMap(x) &&
-  !isWeakSet(x)
+  !isWeakSet(x) &&
+  !isTagged(x)

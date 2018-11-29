@@ -171,12 +171,12 @@ describe('stringify', () => {
 
     it('fails on "imitation" POJSO array', () => {
       expect(() => stringify(Object.setPrototypeOf([], Object.prototype)))
-        .toThrowError('Can\'t stringify a value with non-configurable property "length"')
+        .toThrowError('Can\'t stringify a non-Plain Old JavaScript Object with prototype Object.prototype')
     })
 
     it('fails on "imitation" POJSO error', () => {
       expect(() => stringify(Object.setPrototypeOf(Error(), Object.prototype)))
-        .toThrowError('Can\'t stringify a value with non-enumerable property "stack"')
+        .toThrowError('Can\'t stringify a non-Plain Old JavaScript Object with prototype Object.prototype')
     })
   })
 
