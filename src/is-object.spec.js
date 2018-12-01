@@ -44,7 +44,9 @@ describe('is-object', () => {
       () => new Set([1]),
       () => new Map([[1, 2]]),
       () => new WeakSet([{ a: 1 }]),
-      () => new WeakMap([[{ a: 1 }, 2]])
+      () => new WeakMap([[{ a: 1 }, 2]]),
+
+      () => new Error()
     ]
 
     candidateGetters.forEach((candidateGetter, i) => {
