@@ -8,12 +8,8 @@ module.exports = number => {
     throw Error('Will not attempt to get the sign, exponent and mantissa of NaN')
   }
 
-  const arrayBuffer = new ArrayBuffer(8)
-
-  const float64Array = new Float64Array(arrayBuffer)
-  float64Array[0] = number
-
-  const uint8Array = new Uint8Array(arrayBuffer)
+  const float64Array = new Float64Array([number])
+  const uint8Array = new Uint8Array(float64Array.buffer)
 
   const sign =
     ((uint8Array[7] & 0b10000000) >> 7)
