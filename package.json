@@ -1,7 +1,12 @@
 {
   "name": "precise-json",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Lossless JSON stringifier and parser",
+  "homepage": "https://github.com/qntm/precise-json",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/qntm/precise-json.git"
+  },
   "scripts": {
     "jest": "jest",
     "standard": "standard",
@@ -28,10 +33,6 @@
   "author": "qntm",
   "license": "MIT",
   "main": "src/main.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/qntm/precise-json.git"
-  },
   "keywords": [
     "json",
     "javascript",
@@ -43,6 +44,5 @@
   ],
   "bugs": {
     "url": "https://github.com/qntm/precise-json/issues"
-  },
-  "homepage": "https://github.com/qntm/precise-json#readme"
+  }
 }
