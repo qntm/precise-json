@@ -27,7 +27,7 @@
     "precise-float": "0.0.0"
   },
   "devDependencies": {
-    "jest": "^24.8.0",
+    "jest": "^26.4.0",
     "standard": "^14.3.3"
   },
   "author": "qntm",
