@@ -65,7 +65,7 @@ const stringify = value => {
     }
 
     if (!Object.isExtensible(value)) {
-      throw Error(`Can't stringify a non-extensible object`)
+      throw Error('Can\'t stringify a non-extensible object')
     }
 
     const ownPropertySymbols = Object.getOwnPropertySymbols(value)
