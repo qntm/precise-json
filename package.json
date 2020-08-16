@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "decimal.js": "^10.0.1",
-    "green-parse": "0.0.4",
+    "green-parse": "2.0.4",
     "is-arguments": "^1.0.4",
     "is-bigint": "^1.0.0",
     "is-boolean-object": "^1.0.0",
