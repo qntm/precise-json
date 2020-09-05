@@ -1,5 +1,0 @@
-*
-!src/*.js
-src/*.spec.js
-!package.json
-!README.md
