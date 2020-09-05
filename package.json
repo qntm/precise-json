@@ -9,12 +9,12 @@
   },
   "scripts": {
     "jest": "jest",
-    "standard": "standard",
-    "test": "npm run standard -- --fix && npm run jest"
+    "standard": "standard --fix",
+    "test": "standard && jest"
   },
   "dependencies": {
     "decimal.js": "^10.0.1",
-    "green-parse": "2.0.4",
+    "green-parse": "^2.0.5",
     "is-arguments": "^1.0.4",
     "is-bigint": "^1.0.0",
     "is-boolean-object": "^1.0.0",
@@ -44,5 +44,9 @@
   ],
   "bugs": {
     "url": "https://github.com/qntm/precise-json/issues"
-  }
+  },
+  "files": [
+    "src",
+    "!src/**/*.spec.js"
+  ]
 }
