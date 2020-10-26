@@ -9,7 +9,8 @@
   },
   "scripts": {
     "jest": "jest",
-    "standard": "standard --fix",
+    "postpublish": "npm version patch && git push",
+    "standard": "standard --fix --verbose",
     "test": "standard && jest"
   },
   "dependencies": {
@@ -28,7 +29,7 @@
   },
   "devDependencies": {
     "jest": "^26.4.0",
-    "standard": "^14.3.3"
+    "standard": "^15.0.0"
   },
   "author": "qntm",
   "license": "MIT",
