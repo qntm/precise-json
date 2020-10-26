@@ -9,7 +9,8 @@
   },
   "scripts": {
     "jest": "jest",
-    "standard": "standard --fix",
+    "postpublish": "npm version patch && git push",
+    "standard": "standard --fix --verbose",
     "test": "standard && jest"
   },
   "dependencies": {
