@@ -25,7 +25,6 @@ describe('is-object', () => {
       () => new Number(42),
 
       () => /forty-two/,
-      () => new RegExp('forty-two'),
       () => new Float32Array([42]),
       () => new Float64Array([42]),
       () => new Int8Array([42]),
